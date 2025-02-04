@@ -10,20 +10,20 @@ Actions:
 
   CDKBootstrap:
     Identifier: aws/cdk-bootstrap@v2.0.1
+    Environment:
+      Connections:
+        - Role: CodeCatalystWorkflowDevelopmentRole-workshop-devops
+          Name: "536697236057"
+      Name: default_environment
     Timeout: 10
-    Compute:
-      Type: EC2
-      Fleet: Linux.x86-64.Large
     Inputs:
       Sources:
         - WorkflowSource
+    Compute:
+      Type: EC2
     Configuration:
       Region: us-east-1
-    Environment:
-      Name: default_environment
-      Connections:
-        - Name: "536697236057"
-          Role: CodeCatalystWorkflowDevelopmentRole-workshop-devops 
+      CdkCliVersion: 2.160.0
 
   CDKDeploy:
     Identifier: aws/cdk-deploy@v2.0.2
@@ -41,7 +41,7 @@ Actions:
       Name: default_environment
       Connections:
         - Name: "536697236057"
-          Role: CodeCatalystWorkflowDevelopmentRole-workshop-devops 
+          Role: CodeCatalystWorkflowDevelopmentRole-workshop-devops
     Outputs:
       Artifacts:
         - Name: CDKDeploymentOutput
