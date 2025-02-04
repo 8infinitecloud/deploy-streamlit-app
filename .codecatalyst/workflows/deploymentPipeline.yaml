@@ -8,24 +8,20 @@ Triggers:
 
 Actions:
   InstallDependencies:
-    Identifier: aws/lambda-invoke@v1
+    Identifier: aws/codebuild@v1.0.0
     Timeout: 10
     Compute:
       Type: EC2
       Fleet: Linux.x86-64.Large
     Configuration:
-      FunctionName: "install-dependencies"
-      Payload: |
-        {
-          "commands": [
-            "python -m venv .venv",
-            "source .venv/bin/activate",
-            "pip install -r requirements.txt"
-          ]
-        }
+      ProjectName: "install-dependencies"
+      AWSRegion: "us-east-1"
+    Inputs:
+      Sources:
+        - WorkflowSource
 
   CDKBootstrap:
-    Identifier: aws/cdk-bootstrap@v1
+    Identifier: aws/cdk-bootstrap@v2.0.1
     Timeout: 10
     Compute:
       Type: EC2
@@ -42,7 +38,7 @@ Actions:
           Role: CodeCatalystWorkflowDevelopmentRole-streamlit
 
   CDKDeploy:
-    Identifier: aws/cdk-deploy@v1
+    Identifier: aws/cdk-deploy@v2.0.2
     DependsOn:
       - InstallDependencies
       - CDKBootstrap
@@ -66,7 +62,7 @@ Actions:
             - cdk.out/*
 
   PostDeploy:
-    Identifier: aws/lambda-invoke@v1
+    Identifier: aws/codebuild@v1.0.0
     DependsOn:
       - CDKDeploy
     Timeout: 5
@@ -74,11 +70,8 @@ Actions:
       Type: EC2
       Fleet: Linux.x86-64.Large
     Configuration:
-      FunctionName: "post-deploy"
-      Payload: |
-        {
-          "commands": [
-            "aws cloudformation describe-stacks --stack-name streamlit-app-stack --query \"Stacks[0].Outputs[?OutputKey=='CloudFrontURL'].OutputValue\" --output text",
-            "aws cloudformation describe-stacks --stack-name streamlit-app-stack --query \"Stacks[0].Outputs[?OutputKey=='CognitoUserPoolId'].OutputValue\" --output text"
-          ]
-        }
+      ProjectName: "post-deploy"
+      AWSRegion: "us-east-1"
+    Inputs:
+      Sources:
+        - WorkflowSource
