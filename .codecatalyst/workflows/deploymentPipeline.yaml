@@ -8,7 +8,7 @@ Triggers:
 
 Actions:
   InstallDependencies:
-    Identifier: aws/codebuild@v1.0.0
+    Identifier: aws/build@v1.0.0
     Timeout: 10
     Compute:
       Type: EC2
@@ -62,7 +62,7 @@ Actions:
             - cdk.out/*
 
   PostDeploy:
-    Identifier: aws/codebuild@v1.0.0
+    Identifier: aws/build@v1.0.0
     DependsOn:
       - CDKDeploy
     Timeout: 5
