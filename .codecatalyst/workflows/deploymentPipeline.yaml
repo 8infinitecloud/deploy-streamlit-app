@@ -7,24 +7,6 @@ Triggers:
       - main
 
 Actions:
-  InstallDependencies:
-    Identifier: aws/build@v1.0.0
-    Timeout: 10
-    Compute:
-      Type: EC2
-      Fleet: Linux.x86-64.Large
-    Configuration:
-      Steps:
-        - Name: "Install dependencies"
-          Command: |
-            #!/bin/bash
-            echo "Installing dependencies..."
-            pip install -r requirements.txt
-            echo "Dependencies installed."
-            exit 0
-    Inputs:
-      Sources:
-        - WorkflowSource
 
   CDKBootstrap:
     Identifier: aws/cdk-bootstrap@v2.0.1
