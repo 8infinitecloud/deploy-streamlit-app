@@ -27,23 +27,26 @@ Actions:
 
   CDKDeploy:
     Identifier: aws/cdk-deploy@v2.0.2
-    DependsOn:
-      - CDKBootstrap
-    Timeout: 15
-    Inputs:
-      Sources:
-        - WorkflowSource
-    Configuration:
-      StackName: streamlit-app-stack
-      Region: us-east-1
-      Context: '{"stack_name": "streamlit-app-stack"}'
-    Environment:
-      Name: default_environment
-      Connections:
-        - Name: "536697236057"
-          Role: CodeCatalystWorkflowDevelopmentRole-workshop-devops
     Outputs:
       Artifacts:
         - Name: CDKDeploymentOutput
           Files:
             - cdk.out/*
+    Environment:
+      Connections:
+        - Role: CodeCatalystWorkflowDevelopmentRole-workshop-devops
+          Name: "536697236057"
+      Name: default_environment
+    Timeout: 15
+    Inputs:
+      Sources:
+        - WorkflowSource
+    Compute:
+      Type: EC2
+    Configuration:
+      StackName: streamlit-app-stack
+      Region: us-east-1
+      CdkCliVersion: 2.160.0
+      Context: '{"stack_name":"streamlit-app-stack"}'
+    DependsOn:
+      - CDKBootstrap
