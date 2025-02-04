@@ -14,8 +14,13 @@ Actions:
       Type: EC2
       Fleet: Linux.x86-64.Large
     Configuration:
-      ProjectName: "install-dependencies"
-      AWSRegion: "us-east-1"
+      # configure install requirements.txtfile
+      Script: |
+        #!/bin/bash
+        echo "Installing dependencies..."
+        pip install -r requirements.txt
+        echo "Dependencies installed."
+        exit 0
     Inputs:
       Sources:
         - WorkflowSource
@@ -60,18 +65,3 @@ Actions:
         - Name: CDKDeploymentOutput
           Files:
             - cdk.out/*
-
-  PostDeploy:
-    Identifier: aws/build@v1.0.0
-    DependsOn:
-      - CDKDeploy
-    Timeout: 5
-    Compute:
-      Type: EC2
-      Fleet: Linux.x86-64.Large
-    Configuration:
-      ProjectName: "post-deploy"
-      AWSRegion: "us-east-1"
-    Inputs:
-      Sources:
-        - WorkflowSource
