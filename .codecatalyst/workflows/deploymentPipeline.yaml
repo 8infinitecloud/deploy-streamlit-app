@@ -8,27 +8,21 @@ Triggers:
 
 Actions:
   InstallDependencies:
-    Identifier: aws/codebuild@v1
+    Identifier: aws/lambda-invoke@v1
     Timeout: 10
     Compute:
       Type: EC2
       Fleet: Linux.x86-64.Large
-    Inputs:
-      Sources:
-        - WorkflowSource
     Configuration:
-      ProjectName: "InstallDependencies"
-      BuildSpec: |
-        version: 0.2
-        phases:
-          install:
-            runtime-versions:
-              python: 3.9
-            commands:
-              - echo "Instalando dependencias..."
-              - python -m venv .venv
-              - source .venv/bin/activate
-              - pip install -r requirements.txt
+      FunctionName: "install-dependencies"
+      Payload: |
+        {
+          "commands": [
+            "python -m venv .venv",
+            "source .venv/bin/activate",
+            "pip install -r requirements.txt"
+          ]
+        }
 
   CDKBootstrap:
     Identifier: aws/cdk-bootstrap@v1
@@ -72,7 +66,7 @@ Actions:
             - cdk.out/*
 
   PostDeploy:
-    Identifier: aws/codebuild@v1
+    Identifier: aws/lambda-invoke@v1
     DependsOn:
       - CDKDeploy
     Timeout: 5
@@ -80,14 +74,11 @@ Actions:
       Type: EC2
       Fleet: Linux.x86-64.Large
     Configuration:
-      ProjectName: "PostDeploy"
-      BuildSpec: |
-        version: 0.2
-        phases:
-          build:
-            commands:
-              - echo "Obteniendo URL de CloudFront y User Pool ID..."
-              - DISTRIBUTION_URL=$(aws cloudformation describe-stacks --stack-name streamlit-app-stack --query "Stacks[0].Outputs[?OutputKey=='CloudFrontURL'].OutputValue" --output text)
-              - USER_POOL_ID=$(aws cloudformation describe-stacks --stack-name streamlit-app-stack --query "Stacks[0].Outputs[?OutputKey=='CognitoUserPoolId'].OutputValue" --output text)
-              - echo "URL de CloudFront: $DISTRIBUTION_URL"
-              - echo "ID de User Pool de Cognito: $USER_POOL_ID"
+      FunctionName: "post-deploy"
+      Payload: |
+        {
+          "commands": [
+            "aws cloudformation describe-stacks --stack-name streamlit-app-stack --query \"Stacks[0].Outputs[?OutputKey=='CloudFrontURL'].OutputValue\" --output text",
+            "aws cloudformation describe-stacks --stack-name streamlit-app-stack --query \"Stacks[0].Outputs[?OutputKey=='CognitoUserPoolId'].OutputValue\" --output text"
+          ]
+        }
