@@ -14,13 +14,14 @@ Actions:
       Type: EC2
       Fleet: Linux.x86-64.Large
     Configuration:
-      # configure install requirements.txtfile
-      Script: |
-        #!/bin/bash
-        echo "Installing dependencies..."
-        pip install -r requirements.txt
-        echo "Dependencies installed."
-        exit 0
+      Steps:
+        - Name: "Install dependencies"
+          Command: |
+            #!/bin/bash
+            echo "Installing dependencies..."
+            pip install -r requirements.txt
+            echo "Dependencies installed."
+            exit 0
     Inputs:
       Sources:
         - WorkflowSource
