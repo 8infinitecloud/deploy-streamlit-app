@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - echo "Instalando dependencias..."
+      - python -m venv .venv
+      - source .venv/bin/activate
+      - pip install -r requirements.txt
+
+  build:
+    commands:
+      - echo "Ejecutando CDK Bootstrap..."
+      - cdk bootstrap
+      - echo "Desplegando la infraestructura con CDK..."
+      - cdk deploy --require-approval never
+
+  post_build:
+    commands:
+      - echo "Obteniendo salida de la implementación..."
+      - DISTRIBUTION_URL=$(aws cloudformation describe-stacks --stack-name STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='CloudFrontURL'].OutputValue" --output text)
+      - USER_POOL_ID=$(aws cloudformation describe-stacks --stack-name STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='CognitoUserPoolId'].OutputValue" --output text)
+      - echo "URL de CloudFront: $DISTRIBUTION_URL"
+      - echo "ID de User Pool de Cognito: $USER_POOL_ID"
+
+artifacts:
+  files:
+    - '**/*'
